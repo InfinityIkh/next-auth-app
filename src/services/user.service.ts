@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs"
 import { Prisma } from "@/generated/prisma/client"
-import { UserRepository } from "@/repositories/user.repository" 
-import type { CreateUserInput, UpdateUserInput, UserType } from "@/types/user.type" 
+import { UserRepository } from "@/repositories/user.repository"
+import type { CreateUserInput, UpdateUserInput, UserType } from "@/types/user.type"
 import type { ServiceResponse } from "@/types/service.type"
 
 export class UserService {
@@ -12,21 +12,31 @@ export class UserService {
         return {
             data: {
                 success: true,
-                message : "Users retrieved successfully",
+                message: "Users retrieved successfully",
                 data: { users },
             },
             status: 200,
         }
     }
 
-    static async getUserById(id: number): Promise<ServiceResponse<{ user: UserType }>> {
-        const user = await UserRepository.get(id)
+    static async getUserById(userId: string): Promise<ServiceResponse<{ user: UserType }>> {
+        const id = Number(userId)
+        if (!Number.isSafeInteger(id) || id <= 0) {
+            return {
+                data: {
+                    success: false,
+                    message: "Invalid user ID.",
+                },
+                status: 400,
+            }
+        }
 
+        const user = await UserRepository.get(id)
         if (!user) {
             return {
                 data: {
                     success: false,
-                    message: "User not found",
+                    message: "User not found.",
                 },
                 status: 404,
             }
@@ -35,7 +45,7 @@ export class UserService {
         return {
             data: {
                 success: true,
-                message : "User retrieved successfully",
+                message: "User retrieved successfully.",
                 data: { user },
             },
             status: 200,
@@ -43,7 +53,8 @@ export class UserService {
     }
 
     static async createUser(data: CreateUserInput): Promise<ServiceResponse<{ user: UserType }>> {
-        const existingUser = await UserRepository.getByEmail(data.email)
+        const normalizedEmail = data.email.trim().toLowerCase()
+        const existingUser = await UserRepository.getByEmail(normalizedEmail)
 
         if (existingUser) {
             return {
@@ -64,12 +75,13 @@ export class UserService {
             const user = await UserRepository.create({
                 ...data,
                 password: hashedPassword,
+                email : normalizedEmail
             })
 
             return {
                 data: {
                     success: true,
-                    message : "User created successfully",
+                    message: "User created successfully",
                     data: { user },
                 },
                 status: 201,
@@ -92,7 +104,17 @@ export class UserService {
         }
     }
 
-    static async updateUser(id: number ,data: UpdateUserInput): Promise<ServiceResponse<{ user: UserType }>> {
+    static async updateUser(userId: string, data: UpdateUserInput): Promise<ServiceResponse<{ user: UserType }>> {
+        const id = Number(userId)
+        if (!Number.isSafeInteger(id) || id <= 0) {
+            return {
+                data: {
+                    success: false,
+                    message: "Invalid user ID.",
+                },
+                status: 400,
+            }
+        }
         const existingUser = await UserRepository.get(id)
 
         if (!existingUser) {
@@ -105,8 +127,8 @@ export class UserService {
             }
         }
 
-        if (data.email && data.email !== existingUser.email) {
-            const emailExists = await UserRepository.getByEmail(data.email)
+        if (data.email && data.email.trim().toLowerCase() !== existingUser.email) {
+            const emailExists = await UserRepository.getByEmail(data.email.trim().toLowerCase())
 
             if (emailExists) {
                 return {
@@ -122,7 +144,7 @@ export class UserService {
             }
         }
 
-        const user = await UserRepository.update(id, data)
+        const user = await UserRepository.update(id, {...data ,email : data.email?.trim().toLocaleLowerCase()})
 
         if (!user) {
             return {
@@ -137,14 +159,24 @@ export class UserService {
         return {
             data: {
                 success: true,
-                message : "User updated successfully",
+                message: "User updated successfully",
                 data: { user },
             },
             status: 200,
         }
     }
 
-    static async deleteUser(id: number): Promise<ServiceResponse<{ user: UserType }>> {
+    static async deleteUser(userId: string): Promise<ServiceResponse<{ user: UserType }>> {
+        const id = Number(userId)
+        if (!Number.isSafeInteger(id) || id <= 0) {
+            return {
+                data: {
+                    success: false,
+                    message: "Invalid user ID.",
+                },
+                status: 400,
+            }
+        }
         const user = await UserRepository.delete(id)
 
         if (!user) {
@@ -160,7 +192,7 @@ export class UserService {
         return {
             data: {
                 success: true,
-                message : "User deleted successfully",
+                message: "User deleted successfully",
                 data: { user },
             },
             status: 200,
