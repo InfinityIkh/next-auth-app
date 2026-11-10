@@ -57,7 +57,7 @@ export class UserRepository {
         try {
             return await prisma.user.findUnique({
                 where: {
-                    email : email
+                    email: email
                 },
                 select: {
                     id: true,
@@ -81,7 +81,14 @@ export class UserRepository {
                 where: {
                     id: id
                 },
-                data: data
+                data: data,
+                select: {
+                    id: true,
+                    username: true,
+                    email: true,
+                    created_at: true,
+                    role: true
+                }
             })
         } catch (error: unknown) {
             if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
@@ -96,6 +103,13 @@ export class UserRepository {
             return await prisma.user.delete({
                 where: {
                     id: id
+                },
+                select: {
+                    id: true,
+                    username: true,
+                    email: true,
+                    created_at: true,
+                    role: true
                 }
             })
         } catch (error: unknown) {
