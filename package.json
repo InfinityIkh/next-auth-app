@@ -13,6 +13,7 @@
     "@prisma/adapter-mariadb": "^7.10.1",
     "@prisma/client": "^7.10.1",
     "bcryptjs": "^3.0.3",
+    "jose": "^6.2.17",
     "mariadb": "^3.5.5",
     "next": "16.4.5",
     "react": "19.3.0",
