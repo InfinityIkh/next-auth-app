@@ -2,7 +2,7 @@ import { z } from "zod"
 
 export const userSchema = z.object({
     username: z
-        .string()
+        .string("Username cannot be empty")
         .min(4, "Username must be at least 4 characters long")
         .max(18, "Username must not exceed 18 characters"),
 
@@ -10,7 +10,7 @@ export const userSchema = z.object({
         .email("Please enter a valid email address"),
 
     password: z
-        .string()
+        .string("Password cannot be empty")
         .min(8, "Password must be at least 8 characters long")
         .max(64, "Password must not exceed 64 characters")
         .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
