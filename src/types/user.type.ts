@@ -11,3 +11,7 @@ export type UserType = {
     role : string
     created_at : Date
 }
+
+export type UserIdParams = {
+    params : Promise<{id : string}>
+}
