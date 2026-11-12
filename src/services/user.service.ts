@@ -53,29 +53,29 @@ export class UserService {
     }
 
     static async createUser(data: CreateUserInput): Promise<ServiceResponse<{ user: UserType }>> {
-        const normalizedEmail = data.email.trim().toLowerCase()
-        const existingUser = await UserRepository.getByEmail(normalizedEmail)
-
-        if (existingUser) {
-            return {
-                data: {
-                    success: false,
-                    message: "Email is already registered",
-                    errors: {
-                        email: ["This email is already in use"],
-                    },
-                },
-                status: 409,
-            }
-        }
-
-        const hashedPassword = await bcrypt.hash(data.password, 12)
-
         try {
+            const normalizedEmail = data.email.trim().toLowerCase()
+            const existingUser = await UserRepository.getByEmail(normalizedEmail)
+
+            if (existingUser) {
+                return {
+                    data: {
+                        success: false,
+                        message: "Email is already registered",
+                        errors: {
+                            email: ["This email is already in use"],
+                        },
+                    },
+                    status: 409,
+                }
+            }
+
+            const hashedPassword = await bcrypt.hash(data.password, 12)
+
             const user = await UserRepository.create({
                 ...data,
                 password: hashedPassword,
-                email : normalizedEmail
+                email: normalizedEmail
             })
 
             return {
@@ -144,7 +144,7 @@ export class UserService {
             }
         }
 
-        const user = await UserRepository.update(id, {...data ,email : data.email?.trim().toLocaleLowerCase()})
+        const user = await UserRepository.update(id, { ...data, email: data.email?.trim().toLocaleLowerCase() })
 
         if (!user) {
             return {
