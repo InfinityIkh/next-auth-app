@@ -22,3 +22,8 @@ export const registerSchema = credentialsSchema.extend({
 })
 
 export const loginSchema = credentialsSchema
+
+export const jwtPayloadSchema = z.object({
+    userId: z.number().int().positive(),
+    role: z.enum(["USER", "ADMIN"]),
+})
