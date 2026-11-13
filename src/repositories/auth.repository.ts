@@ -22,4 +22,28 @@ export class AuthRepository {
             data
         })
     }
+    static async updateRefreshToken(hashedRefreshToken: string) {
+        return await prisma.refreshToken.updateMany({
+            where: {
+                token: hashedRefreshToken,
+                revoked: false
+            },
+            data: {
+                revoked: true
+            }
+        })
+    }
+    static async getUser(id: number) {
+        return await prisma.user.findUnique({
+            where: {
+                id: id
+            }, select: {
+                id: true,
+                username: true,
+                email: true,
+                role: true,
+                created_at: true
+            }
+        })
+    }
 }
